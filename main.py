@@ -1,11 +1,11 @@
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QApplication, QMainWindow
 # import pandas as pd
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.width = 500
-        self.height = 500
+        self.fullscreen = False
         self.create_widgets()
         self.create_grid()
         self.setup_window()
@@ -19,11 +19,18 @@ class MainWindow(QMainWindow):
 
     def setup_window(self):
         self.setWindowTitle('UnitWatch')
-        self.setFixedWidth(self.width)
-        self.setFixedHeight(self.height)
+        self.setFixedSize(500, 500)
 
     def create_link(self):
         pass
+
+    def mouseDoubleClickEvent(self, e):
+        if e.button() == Qt.MouseButton.LeftButton:
+            if not self.fullscreen:
+                self.setFixedSize(750, 750)
+            else:
+                self.setFixedSize(500, 500)
+            self.fullscreen = not self.fullscreen 
 
 app = QApplication([])
 window = MainWindow()
