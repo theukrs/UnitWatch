@@ -7,3 +7,11 @@ _A simple Python application for tracking daily electricity usage, monitoring un
 ## Features
 
 _Work in Progress_
+
+---
+
+## Screenshot
+
+<p align="center">
+  <img src="demo.png" alt="UnitWatch DEMO">
+</p>
