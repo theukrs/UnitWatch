@@ -1,15 +1,5 @@
-from PyQt6.QtCore import Qt, QDate
-from PyQt6.QtGui import QIntValidator
-from PyQt6.QtWidgets import QApplication, QWidget, QDateEdit, QMainWindow, QGridLayout, QLabel, QLineEdit, QPushButton,QMessageBox
-import duckdb
-# con = duckdb.connect('database.db')
-# con.execute("""CREATE OR REPLACE TABLE readings (
-#         id INTEGER DEFAULT,
-#         reading_date DATE,
-#         units INTEGER
-#     )
-# """)
-
+from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout
+from add_readings import AddReadings
 STYLE = """
     QWidget {background-color: #2c3e50;color: white;}
     QPushButton {background-color: #27ae60;font-size: 20pt;border-radius: 8px;padding:5px;}
@@ -43,39 +33,21 @@ STYLE = """
         background-color: #27ae60;
     }
 """
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.fullscreen = False
         self.create_widgets()
         self.create_grid()
         self.setup_window()
         self.create_link()
 
     def create_widgets(self):
-        self.header_label = QLabel('Enter the reading!')
-        self.header_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.input_box = QLineEdit()
-        self.input_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.input_box.setValidator(QIntValidator(1,9999))
-        self.input_box.setPlaceholderText('Enter the numbers')
-
-        self.reading_date = QDateEdit()
-        self.reading_date.setDate(QDate.currentDate())
-        self.reading_date.setCalendarPopup(True)
-        self.reading_date.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.submit_btn = QPushButton('Submit')
+        self.add_readings = AddReadings()
 
     def create_grid(self):
         widget = QWidget()
         grid = QGridLayout()
-        grid.addWidget(self.header_label,0,0)
-        grid.addWidget(self.input_box,1,0)
-        grid.addWidget(self.reading_date,2,0)
-        grid.addWidget(self.submit_btn,3,0)
+        grid.addWidget(self.add_readings,0,0)
 
         widget.setLayout(grid)
         self.setCentralWidget(widget)
@@ -86,15 +58,7 @@ class MainWindow(QMainWindow):
         self.setFixedWidth(300)
 
     def create_link(self):
-        self.submit_btn.clicked.connect(self.readings_submit)
-    
-    def readings_submit(self):
-        try:
-            readings = self.input_box.text()
-            date = self.reading_date.date().toString("yyyy-MM-dd")
-            print(f"Readings for {date}: {readings}")
-        except ValueError:
-            QMessageBox.warning(self,'Input Error','Kindly enter valid numbers only.\nNumber and Rows must be integers.\nThe number must be 1-9999')
+        pass
 
 app = QApplication([])
 window = MainWindow()
