@@ -1,41 +1,12 @@
-from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtCore import Qt, QDate, pyqtSignal
 from PyQt6.QtGui import QIntValidator
-from PyQt6.QtWidgets import QWidget,QGridLayout, QLabel, QLineEdit, QPushButton, QDateEdit, QMessageBox
+from PyQt6.QtWidgets import QWidget,QFormLayout, QLabel, QLineEdit, QPushButton, QDateEdit, QMessageBox
 import duckdb
-STYLE = """
-    QWidget {background-color: #2c3e50;color: white;}
-    QPushButton {background-color: #27ae60;font-size: 20pt;border-radius: 8px;padding:5px;}
-    QPushButton:hover {background-color: #219150;}
-    QLineEdit {background-color:#222; border: 1px solid #555; padding: 10px; font-size: 11pt;}
-    QLineEdit:focus { border: 1px solid #27ae60;}
-    QLabel { font-size:20px; font-weight: bold;}
-    QDateEdit {
-        background-color: #222;
-        border: 1px solid #555;
-        border-radius: 4px;
-        padding: 8px 10px;
-        font-size: 11pt;
-        color: white;
-    }
-    QDateEdit:focus {
-        border: 1px solid #27ae60;
-    }
-    QDateEdit::drop-down {
-        subcontrol-origin: padding;
-        subcontrol-position: top right;
-        width: 25px;
-        border-left-width: 1px;
-        border-left-color: #555;
-        border-left-style: solid;
-        border-top-right-radius: 3px;
-        border-bottom-right-radius: 3px;
-        background-color: #333;
-    }
-    QDateEdit::drop-down:hover {
-        background-color: #27ae60;
-    }
-"""
+green_btn_style = """QPushButton {background-color: #27ae60;font-size: 20pt;border-radius: 8px;padding:5px;}QPushButton:hover {background-color: #219150;}"""
+red_btn_style = """QPushButton {background-color: #e74c3c; color: white;font-size: 20pt; border-radius: 8px; padding: 5px;} 
+QPushButton:hover { background-color: #c0392b;}"""
 class AddReadings(QWidget):
+    submitted = pyqtSignal()
     def __init__(self):
         super().__init__()
         self.create_widgets()
@@ -51,32 +22,41 @@ class AddReadings(QWidget):
         self.input_box.setValidator(QIntValidator(1,9999))
         self.input_box.setPlaceholderText('Enter the numbers')
 
-        self.reading_date = QDateEdit()
-        self.reading_date.setDate(QDate.currentDate())
-        self.reading_date.setCalendarPopup(True)
-        self.reading_date.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.r_date = QDateEdit()
+        self.r_date.setDate(QDate.currentDate())
+        self.r_date.setCalendarPopup(True)
+        self.r_date.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.submit_btn = QPushButton('Submit')
+        self.submit_btn.setStyleSheet(green_btn_style)
+        self.cancel_btn = QPushButton('Cancel')
+        self.cancel_btn.setStyleSheet(red_btn_style)
 
     def create_grid(self):
-        grid = QGridLayout()
-        grid.addWidget(self.header_label,0,0)
-        grid.addWidget(self.input_box,1,0)
-        grid.addWidget(self.reading_date,2,0)
-        grid.addWidget(self.submit_btn,3,0)
-        self.setLayout(grid)
-
-    def setup_window(self):
-        pass
+        # grid = QGridLayout()
+        # grid.addWidget(self.header_label,0,0)
+        # grid.addWidget(self.input_box,1,0)
+        # grid.addWidget(self.reading_date,2,0)
+        # grid.addWidget(self.submit_btn,3,0)
+        # self.setLayout(grid)
+        layout = QFormLayout()
+        layout.addRow("Units:", self.input_box)
+        layout.addRow("Date:", self.r_date)
+        layout.addRow(self.cancel_btn,self.submit_btn)
+        self.setLayout(layout)
 
     def create_link(self):
         self.submit_btn.clicked.connect(self.readings_submit)
+        self.cancel_btn.clicked.connect(self.submitted.emit)
     
     def readings_submit(self):
         try:
             readings = int(self.input_box.text())
-            date = self.reading_date.date().toString("yyyy-MM-dd")
+            date = self.r_date.date().toString("yyyy-MM-dd")
             print(f"Readings for {date}: {readings}")
+            self.submitted.emit()
+            self.input_box.clear()
+            self.r_date.setDate(QDate.currentDate())
             with duckdb.connect('data.duckdb') as con:
                 con.execute("CREATE TABLE IF NOT EXISTS readings (reading_date DATE, units INTEGER)")
                 con.execute("INSERT INTO readings (reading_date, units) VALUES (?,?)",(date,readings))
