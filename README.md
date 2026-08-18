@@ -6,12 +6,27 @@ _A simple Python application for tracking daily electricity usage, monitoring un
 
 ## Features
 
-_Work in Progress_
+- Database
+- Add meter readings
+- View previous readings
+- Track daily unit usage
+- Store readings by date
+- Calculate usage between readings
+- Calculate average daily usage
+- Simple and clean GUI
+
+---
+
+## Tech stack
+
+- Python 3
+- PyQt6
+- Duckdb (for database)
 
 ---
 
 ## Screenshot
 
 <p align="center">
-  <img src="demo.png" alt="UnitWatch DEMO">
+  <img src="demo.gif" alt="UnitWatch DEMO">
 </p>

@@ -16,8 +16,6 @@ SELECT reading_date, units FROM readings WHERE reading_date = '{date.today()}'
 """
 class AddReadings(QWidget):
     submitted = pyqtSignal()
-    with duckdb.connect('data.duckdb') as conn:
-        conn.execute("DELETE FROM readings WHERE reading_date = '2025-08-02'")
     def __init__(self):
         super().__init__()
         self.create_widgets()
