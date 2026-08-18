@@ -16,14 +16,15 @@ SELECT reading_date, units FROM readings WHERE reading_date = '{date.today()}'
 """
 class AddReadings(QWidget):
     submitted = pyqtSignal()
-    conn = duckdb.connect('data.duckdb')
-    # conn.execute("DELETE FROM readings WHERE reading_date != '2026-08-18'")
+    with duckdb.connect('data.duckdb') as conn:
+        conn.execute("DELETE FROM readings WHERE reading_date = '2025-08-02'")
     def __init__(self):
         super().__init__()
         self.create_widgets()
         self.create_grid()
         self.create_link()
-        results = self.conn.execute(QUERY).fetchall()
+        with duckdb.connect('data.duckdb') as conn:
+            results = conn.execute(QUERY).fetchall()
         # if (len(results) > 0):
         #     self.disable_options(results[0][1])
 
@@ -61,16 +62,16 @@ class AddReadings(QWidget):
         try:
             readings = int(self.input_box.text())
             date = self.r_date.date().toString("yyyy-MM-dd")
-            self.submitted.emit()
             self.input_box.clear()
             self.r_date.setDate(QDate.currentDate())
-            self.conn.execute("CREATE TABLE IF NOT EXISTS readings (reading_date DATE, units INTEGER)")
-            self.conn.execute("INSERT INTO readings (reading_date, units) VALUES (?,?)",(date,readings))
-            print(self.conn.execute("SELECT * FROM readings").fetchall())
+            with duckdb.connect('data.duckdb') as conn:
+                conn.execute("INSERT INTO readings (reading_date, units) VALUES (?,?)",(date,readings))
+                self.submitted.emit()
         except ValueError:
             QMessageBox.warning(self,'Input Error','Kindly enter valid numbers only.\nNumber and Rows must be integers.\nThe number must be 1-9999')
 
     def disable_options(self,units):
-        self.input_box.setText(str(units))
+        self.input_box.setText(f'{str(units)} [ALREADY SUBMITTED]')
         self.input_box.setReadOnly(True)
         self.submit_btn.setDisabled(True)
+        self.r_date.setReadOnly(True)

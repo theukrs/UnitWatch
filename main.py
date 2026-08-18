@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout, QPushButton
 from add_readings import AddReadings
 from show_readings import ShowReadings
+from time import perf_counter
 STYLE = """
     QWidget {background-color: #2c3e50;color: white;}
     QLineEdit {background-color:#222; border: 1px solid #555; padding: 10px; font-size: 11pt;}
@@ -139,17 +140,20 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('UnitWatch')
         self.setStyleSheet(STYLE)
         self.setStyleSheet(TABLE_STYLE)
-        self.setFixedWidth(377)
+        self.setFixedSize(385,426)
 
     def create_link(self):
         self.add_btn.clicked.connect(self.toggle_add_mode)
-        self.add_readings.submitted.connect(self.toggle_add_mode)
+        self.add_readings.submitted.connect(self.reading_submitted)
 
     def toggle_add_mode(self):
-        self.show_readings.load_tables()
         visible = self.add_readings.isVisible()
         self.add_readings.setVisible(not visible)
         self.add_btn.setVisible(visible)
+
+    def reading_submitted(self):
+        self.toggle_add_mode()
+        self.show_readings.load_tables()
 
 
 app = QApplication([])

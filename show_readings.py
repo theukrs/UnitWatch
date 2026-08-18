@@ -1,8 +1,10 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QGridLayout, QTableWidget,QTableWidgetItem, QAbstractItemView
 import duckdb
-
-
+QUERY = """
+        SELECT reading_date, units, units - LAG(units) OVER(order by reading_date) AS usage
+        FROM readings ORDER BY reading_date DESC LIMIT 30
+        """
 
 class ShowReadings(QWidget):
     conn = duckdb.connect('data.duckdb')
@@ -26,11 +28,8 @@ class ShowReadings(QWidget):
         self.setLayout(grid)
 
     def load_tables(self):
-        QUERY = """
-        SELECT reading_date, units, units - LAG(units) OVER(order by reading_date) AS usage
-        FROM readings ORDER BY reading_date DESC LIMIT 15
-        """
-        table_rows = self.conn.execute(QUERY).fetchall()
+        with duckdb.connect('data.duckdb') as conn:
+            table_rows = self.conn.execute(QUERY).fetchall()
         self.table.setRowCount(len(table_rows))
         for i,data in enumerate(table_rows):
             item1, item2 = QTableWidgetItem(data[0].strftime("%d-%m-%Y")),QTableWidgetItem(str(data[1]))
