@@ -23,8 +23,8 @@ class AddReadings(QWidget):
         self.create_link()
         with duckdb.connect('data.duckdb') as conn:
             results = conn.execute(QUERY).fetchall()
-        # if (len(results) > 0):
-        #     self.disable_options(results[0][1])
+        if (len(results) > 0):
+            self.disable_options(results[0][1])
 
     def create_widgets(self):
         self.header_label = QLabel('Enter the reading!')

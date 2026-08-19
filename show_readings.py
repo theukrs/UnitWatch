@@ -7,7 +7,6 @@ QUERY = """
         """
 
 class ShowReadings(QWidget):
-    conn = duckdb.connect('data.duckdb')
     def __init__(self):
         super().__init__()
         self.create_widgets()
@@ -29,7 +28,7 @@ class ShowReadings(QWidget):
 
     def load_tables(self):
         with duckdb.connect('data.duckdb') as conn:
-            table_rows = self.conn.execute(QUERY).fetchall()
+            table_rows = conn.execute(QUERY).fetchall()
         self.table.setRowCount(len(table_rows))
         for i,data in enumerate(table_rows):
             item1, item2 = QTableWidgetItem(data[0].strftime("%d-%m-%Y")),QTableWidgetItem(str(data[1]))
