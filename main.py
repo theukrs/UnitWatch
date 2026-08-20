@@ -1,3 +1,4 @@
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout, QPushButton
 from add_readings import AddReadings
 from show_readings import ShowReadings
@@ -168,6 +169,7 @@ class MainWindow(QMainWindow):
 
 
 app = QApplication([])
+app.setWindowIcon(QIcon('assets/icon.png'))
 window = MainWindow()
 window.show()
 app.exec()
