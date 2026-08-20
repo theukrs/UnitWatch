@@ -3,7 +3,6 @@ import duckdb
 from datetime import date
 import calendar
 STYLE = """
-    QLineEdit {background-color:#222; border: 1px solid #555; padding: 5px; font-size: 11pt; qproperty-alignment: AlignCenter;}
     QLineEdit:focus { border: 1px solid #c0392b;}
     QLabel { font-size:15px; font-weight: bold; qproperty-alignment: AlignCenter;}
     QPushButton {background-color: #666666;font-size: 15pt;padding:5px;font-weight:bold;margin-bottom:10px;}

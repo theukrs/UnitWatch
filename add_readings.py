@@ -3,6 +3,7 @@ from PyQt6.QtGui import QIntValidator
 from PyQt6.QtWidgets import QWidget,QFormLayout, QLabel, QLineEdit, QPushButton, QDateEdit, QMessageBox
 from datetime import date
 import duckdb
+STYLE = ""
 green_btn_style = """
 QPushButton {background-color: #27ae60;font-size: 15pt;border-radius: 8px;padding:5px;}
 QPushButton:hover {background-color: #219150;}
@@ -35,10 +36,14 @@ class AddReadings(QWidget):
         self.input_box.setValidator(QIntValidator(1,9999))
         self.input_box.setPlaceholderText('Enter the numbers')
 
-        self.r_date = QDateEdit()
-        self.r_date.setDate(QDate.currentDate())
-        self.r_date.setCalendarPopup(True)
-        self.r_date.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.r_date = QLineEdit()
+        self.r_date.setReadOnly(True)
+        self.r_date.setText(str(date.today().strftime("%d-%m-%Y")))
+
+        # self.r_date = QDateEdit()
+        # self.r_date.setDate(QDate.currentDate())
+        # self.r_date.setCalendarPopup(True)
+        # self.r_date.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.submit_btn = QPushButton('Submit')
         self.submit_btn.setStyleSheet(green_btn_style)

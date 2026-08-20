@@ -6,8 +6,8 @@ from readings_stats import ReadingStats
 import duckdb
 STYLE = """
     QWidget {color: white;}
-    QLineEdit {background-color:#222; border: 1px solid #555; padding: 10px; font-size: 11pt;}
-    QLineEdit:focus { border: 1px solid #27ae60;}
+    QLineEdit {background-color:#222; border: 1px solid #555; padding: 10px; font-size: 11pt;qproperty-alignment: AlignCenter;}
+    QLineEdit:focus { border: 1px solid #27ae60; }
     QLabel { font-size:15px; font-weight: bold;}
     QDateEdit {
         background-color: #222;
