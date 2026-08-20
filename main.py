@@ -1,12 +1,13 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout, QPushButton
 from add_readings import AddReadings
 from show_readings import ShowReadings
-from time import perf_counter
+from readings_stats import ReadingStats
+import duckdb
 STYLE = """
-    QWidget {background-color: #2c3e50;color: white;}
+    QWidget {color: white;}
     QLineEdit {background-color:#222; border: 1px solid #555; padding: 10px; font-size: 11pt;}
     QLineEdit:focus { border: 1px solid #27ae60;}
-    QLabel { font-size:20px; font-weight: bold;}
+    QLabel { font-size:15px; font-weight: bold;}
     QDateEdit {
         background-color: #222;
         border: 1px solid #555;
@@ -112,35 +113,45 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.add_mode = False
+        self.create_sql()
         self.create_widgets()
         self.create_grid()
         self.setup_window()
         self.create_link()
 
+    def create_sql(self):
+        with duckdb.connect('data.duckdb') as conn:
+            conn.execute('CREATE TABLE IF NOT EXISTS readings (reading_date DATE, units INTEGER)')
+            conn.execute('CREATE TABLE IF NOT EXISTS settings (name VARCHAR PRIMARY KEY, value VARCHAR)')
+
     def create_widgets(self):
         self.add_readings = AddReadings()
         self.add_readings.hide()
 
-        self.show_readings = ShowReadings()
-
         self.add_btn = QPushButton("Add reading")
         self.add_btn.setStyleSheet(blue_btn_style)
+
+        self.show_readings = ShowReadings()
+
+        self.reading_stats = ReadingStats()
+
 
     def create_grid(self):
         widget = QWidget()
         grid = QGridLayout()
         grid.addWidget(self.add_readings,0,0)
         grid.addWidget(self.add_btn,0,0)
+        grid.addWidget(self.reading_stats,0,2,2,1)
         grid.addWidget(self.show_readings,1,0)
-
+        grid.setColumnStretch(0, 1)
+        grid.setColumnStretch(1, 0)
         widget.setLayout(grid)
         self.setCentralWidget(widget)
 
     def setup_window(self):
         self.setWindowTitle('UnitWatch')
-        self.setStyleSheet(STYLE)
-        self.setStyleSheet(TABLE_STYLE)
-        self.setFixedSize(385,426)
+        self.setStyleSheet(STYLE + TABLE_STYLE)
+        self.setFixedSize(536,426)
 
     def create_link(self):
         self.add_btn.clicked.connect(self.toggle_add_mode)
