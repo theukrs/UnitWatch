@@ -22,10 +22,7 @@ class AddReadings(QWidget):
         self.create_widgets()
         self.create_grid()
         self.create_link()
-        with duckdb.connect('data.duckdb') as conn:
-            results = conn.execute(QUERY).fetchall()
-        if (len(results) > 0):
-            self.disable_options(results[0][1])
+        self.confirm_submission()
 
     def create_widgets(self):
         self.header_label = QLabel('Enter the reading!')
@@ -64,11 +61,10 @@ class AddReadings(QWidget):
     def readings_submit(self):
         try:
             readings = int(self.input_box.text())
-            date = self.r_date.date().toString("yyyy-MM-dd")
+            r_date = date.today()
             self.input_box.clear()
-            self.r_date.setDate(QDate.currentDate())
             with duckdb.connect('data.duckdb') as conn:
-                conn.execute("INSERT INTO readings (reading_date, units) VALUES (?,?)",(date,readings))
+                conn.execute("INSERT INTO readings (reading_date, units) VALUES (?,?)",(r_date,readings))
                 self.submitted.emit()
         except ValueError:
             QMessageBox.warning(self,'Input Error','Kindly enter valid numbers only.\nNumber and Rows must be integers.\nThe number must be 1-9999')
@@ -78,3 +74,9 @@ class AddReadings(QWidget):
         self.input_box.setReadOnly(True)
         self.submit_btn.setDisabled(True)
         self.r_date.setReadOnly(True)
+
+    def confirm_submission(self):
+        with duckdb.connect('data.duckdb') as conn:
+            results = conn.execute(QUERY).fetchall()
+        if (len(results) > 0):
+            self.disable_options(results[0][1])

@@ -166,6 +166,8 @@ class MainWindow(QMainWindow):
     def reading_submitted(self):
         self.toggle_add_mode()
         self.show_readings.load_tables()
+        self.reading_stats.link_widgets()
+        self.add_readings.confirm_submission()
 
 
 app = QApplication([])
