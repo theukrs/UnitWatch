@@ -28,7 +28,7 @@ _A simple Python application for tracking daily electricity usage, monitoring un
 ## Screenshots
 
 <p align="center">
-  <img src="assets/demo1.png" alt="DEMO1">
-  <img src="assets/demo2.png" alt="DEMO2">
-  <img src="assets/demo3.png" alt="DEMO3">
+  <img src="assets/demo1.png" alt="DEMO1" width="30%>
+  <img src="assets/demo2.png" alt="DEMO2" width="30%>
+  <img src="assets/demo3.png" alt="DEMO3" width="30%>
 </p>
