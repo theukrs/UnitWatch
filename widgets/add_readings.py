@@ -3,7 +3,6 @@ from PyQt6.QtGui import QIntValidator
 from PyQt6.QtWidgets import QWidget,QFormLayout, QLabel, QLineEdit, QPushButton, QDateEdit, QMessageBox
 from datetime import date
 import duckdb
-STYLE = ""
 green_btn_style = """
 QPushButton {background-color: #27ae60;font-size: 15pt;border-radius: 8px;padding:5px;}
 QPushButton:hover {background-color: #219150;}
