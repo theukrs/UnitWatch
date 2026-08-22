@@ -1,8 +1,8 @@
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout, QPushButton
-from add_readings import AddReadings
-from show_readings import ShowReadings
-from readings_stats import ReadingStats
+from widgets.add_readings import AddReadings
+from widgets.show_readings import ShowReadings
+from widgets.readings_stats import ReadingStats
 import duckdb
 STYLE = """
     QWidget {color: white;}
