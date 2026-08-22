@@ -152,7 +152,7 @@ class MainWindow(QMainWindow):
     def setup_window(self):
         self.setWindowTitle('UnitWatch')
         self.setStyleSheet(STYLE + TABLE_STYLE)
-        self.setFixedSize(536,426)
+        self.setFixedSize(560,426)
 
     def create_link(self):
         self.add_btn.clicked.connect(self.toggle_add_mode)

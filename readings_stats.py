@@ -25,8 +25,6 @@ class ReadingStats(QWidget):
         self.setStyleSheet(STYLE)
 
     def create_widgets(self):
-        self.settings_btn = QPushButton('Settings')
-
         self.days_left_label = QLabel('Days Left:')
         self.days_left = QLineEdit()
         self.days_left.setReadOnly(True)
@@ -51,17 +49,16 @@ class ReadingStats(QWidget):
         grid = QGridLayout()
         grid.setVerticalSpacing(0)
         grid.setHorizontalSpacing(0)
-        grid.addWidget(self.settings_btn,0,0)
-        grid.addWidget(self.days_left_label,1,0)
-        grid.addWidget(self.days_left,2,0)
-        grid.addWidget(self.units_used_label,3,0)
-        grid.addWidget(self.units_used,4,0)
-        grid.addWidget(self.units_left_label,5,0)
-        grid.addWidget(self.units_left,6,0)
-        grid.addWidget(self.avg_units_label,7,0)
-        grid.addWidget(self.avg_units,8,0)
-        grid.addWidget(self.projected_usage_label,9,0)
-        grid.addWidget(self.projected_usage,10,0)
+        grid.addWidget(self.days_left_label,0,0)
+        grid.addWidget(self.days_left,1,0)
+        grid.addWidget(self.units_used_label,2,0)
+        grid.addWidget(self.units_used,3,0)
+        grid.addWidget(self.units_left_label,4,0)
+        grid.addWidget(self.units_left,5,0)
+        grid.addWidget(self.avg_units_label,6,0)
+        grid.addWidget(self.avg_units,7,0)
+        grid.addWidget(self.projected_usage_label,8,0)
+        grid.addWidget(self.projected_usage,9,0)
 
         self.setLayout(grid)
 
@@ -88,7 +85,7 @@ class ReadingStats(QWidget):
             reading_day = int(conn.execute("SELECT value FROM settings where name = 'reading_day'").fetchone()[0])
             units_limit = int(conn.execute("SELECT value FROM settings WHERE name = 'units_limit'").fetchone()[0])
             latest_reading_date = conn.execute("SELECT reading_date FROM readings ORDER BY reading_date DESC LIMIT 1").fetchone()[0]
-            cd = date.today()
+            cd = date.today()  
             year,month = (cd.year - 1, 12) if cd.month == 1 else (cd.year, cd.month - 1)
             self.last_reading_date = date(year,month,reading_day)
             last_read_units = int(conn.execute("SELECT units FROM readings WHERE reading_date = ?",[self.last_reading_date]).fetchone()[0])
