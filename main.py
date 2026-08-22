@@ -35,77 +35,6 @@ STYLE = """
         background-color: #27ae60;
     }
 """
-TABLE_STYLE = """
-QTableWidget {
-    background-color: #222;
-    color: white;
-    border: 1px solid #555;
-    gridline-color: #444;
-    selection-background-color: #27ae60;
-    selection-color: white;
-    alternate-background-color: #2a2a2a;
-}
-
-QTableWidget::item {
-    padding: 5px;
-}
-
-QTableWidget::item:selected {
-    background-color: #27ae60;
-    color: white;
-}
-
-QHeaderView::section {
-    background-color: #222;
-    color: white;
-    padding: 5px;
-    border: 1px solid #555;
-    font-size: 9pt;
-    font-weight: bold;
-}
-
-QTableWidget QScrollBar:vertical {
-    background-color: #222;
-    width: 12px;
-    margin: 0px;
-}
-
-QTableWidget QScrollBar::handle:vertical {
-    background-color: #555;
-    min-height: 30px;
-    border-radius: 5px;
-}
-
-QTableWidget QScrollBar::handle:vertical:hover {
-    background-color: #27ae60;
-}
-
-QTableWidget QScrollBar::add-line:vertical,
-QTableWidget QScrollBar::sub-line:vertical {
-    height: 0px;
-}
-
-QTableWidget QScrollBar:horizontal {
-    background-color: #222;
-    height: 12px;
-    margin: 0px;
-}
-
-QTableWidget QScrollBar::handle:horizontal {
-    background-color: #555;
-    min-width: 30px;
-    border-radius: 5px;
-}
-
-QTableWidget QScrollBar::handle:horizontal:hover {
-    background-color: #27ae60;
-}
-
-QTableWidget QScrollBar::add-line:horizontal,
-QTableWidget QScrollBar::sub-line:horizontal {
-    width: 0px;
-}
-"""
 blue_btn_style = """
 QPushButton {background-color: #2980b9;font-size: 20pt;border-radius: 8px;padding:5px;}
 QPushButton:hover {background-color: #3498db;}"""
@@ -151,7 +80,7 @@ class MainWindow(QMainWindow):
 
     def setup_window(self):
         self.setWindowTitle('UnitWatch')
-        self.setStyleSheet(STYLE + TABLE_STYLE)
+        self.setStyleSheet(STYLE)
         self.setFixedSize(560,426)
 
     def create_link(self):
