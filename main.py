@@ -1,5 +1,5 @@
 from PyQt6.QtGui import QIcon
-from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout, QPushButton
+from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout, QPushButton, QDialog
 from widgets.add_readings import AddReadings
 from widgets.show_readings import ShowReadings
 from widgets.readings_stats import ReadingStats
@@ -9,8 +9,11 @@ STYLE = """
     QWidget {color: white;}
     QLineEdit {background-color:#222; border: 1px solid #555; padding: 10px; font-size: 11pt;qproperty-alignment: AlignCenter;}
     QLineEdit:focus { border: 1px solid #27ae60; }
-    QSpinBox {background-color:#222; border: 1px solid #555; padding: 10px; font-size: 11pt;qproperty-alignment: AlignCenter;}
+    QSpinBox {background-color:#222; border: 1px solid #555; padding: 6px 35px; font-size: 11pt;qproperty-alignment: AlignCenter;}
     QSpinBox:focus { border: 1px solid #27ae60; }
+    QSpinBox:up-button {width:20px; subcontrol-origin: padding; border; subcontrol-position: left;}
+    QSpinBox:down-button {width:20px; subcontrol-origin: padding; subcontrol-position: right;}
+    QSpinBox::up-button:hover, QSpinBox::down-button:hover {background-color: #333;}
     QLabel { font-size:15px; font-weight: bold;}
 """
 DATE_STYLE = """
@@ -62,12 +65,11 @@ class MainWindow(QMainWindow):
         with duckdb.connect('data.duckdb') as conn:
             conn.execute('CREATE TABLE IF NOT EXISTS readings (reading_date DATE, units INTEGER)')
             conn.execute('CREATE TABLE IF NOT EXISTS settings (name VARCHAR PRIMARY KEY, value VARCHAR)')
-            lists = conn.execute('SELECT * FROM settings').fetchall()
-            print(lists)
 
     def create_widgets(self):
         self.add_readings = AddReadings()
         self.add_readings.hide()
+        self.add_readings.setMinimumWidth(400)
 
         self.add_btn = QPushButton("Add reading")
         self.add_btn.setStyleSheet(blue_btn_style)
@@ -110,6 +112,11 @@ class MainWindow(QMainWindow):
         self.add_readings.setVisible(not visible)
         self.add_btn.setVisible(visible)
         self.settings_btn.setVisible(visible)
+        if visible:
+            self.add_btn.setFocus()
+        else:
+            self.add_readings.setFocus()
+
 
     def reading_submitted(self):
         self.toggle_add_mode()
@@ -119,10 +126,11 @@ class MainWindow(QMainWindow):
 
     def open_settings(self):
         dialog = Settings(self)
-        dialog.exec()
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self.reading_stats.link_widgets()
 
 app = QApplication([])
-app.setWindowIcon(QIcon('assets/icon.png'))
+app.setWindowIcon(QIcon('assets/unitwatch.png'))
 window = MainWindow()
 window.show()
 app.exec()

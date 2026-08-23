@@ -1,6 +1,29 @@
 from PyQt6.QtWidgets import QDialog, QLabel, QGridLayout, QSpinBox, QPushButton
 import duckdb
+STYLE = """
+QSpinBox {
+    background-color: #222;
+    border: 1px solid #555;
+    padding: 6px;
+    font-size: 11pt;
+    qproperty-alignment: AlignCenter;
+}
 
+QSpinBox:focus {
+    border: 1px solid #27ae60;
+}
+
+QSpinBox::up-button,
+QSpinBox::down-button {
+    width: 20px;
+    border: none;
+}
+
+QSpinBox::up-button:hover,
+QSpinBox::down-button:hover {
+    background-color: #333;
+}
+"""
 green_btn_style = """
 QPushButton {background-color: #27ae60;font-size: 15pt;border-radius: 8px;padding:5px;}
 QPushButton:hover {background-color: #219150;}
@@ -17,6 +40,7 @@ class Settings(QDialog):
         self.setup_window()
         self.create_link()
         self.setup_values()
+        # self.setStyleSheet(STYLE)
 
     def create_widgets(self):
         self.units_limit_label = QLabel('Units:')
@@ -47,12 +71,21 @@ class Settings(QDialog):
         self.setFixedSize(300,200)
 
     def create_link(self):
-        self.save_btn.clicked.connect(self.accept)
+        self.save_btn.clicked.connect(self.submit_values)
         self.cancel_btn.clicked.connect(self.reject)
 
     def setup_values(self):
         with duckdb.connect('data.duckdb') as conn:
             reading_day = conn.execute("SELECT value FROM settings WHERE name = 'reading_day'").fetchone()[0]
-            units_limit = conn.execute("SELECT value FROM settings WHERE name = 'reading_day'").fetchone()[0]
+            units_limit = conn.execute("SELECT value FROM settings WHERE name = 'units_limit'").fetchone()[0]
             self.reading_day.setValue(int(reading_day))
             self.units_limit.setValue(int(units_limit))
+
+    def submit_values(self):
+        with duckdb.connect('data.duckdb') as conn:
+            reading_day = self.reading_day.value()
+            units_limit = self.units_limit.value()
+            conn.execute("UPDATE settings SET value = ? WHERE name = 'reading_day'",[reading_day])
+            conn.execute("UPDATE settings SET value = ? WHERE name = 'units_limit'",[units_limit])
+            reading_day = conn.execute ("SELECT value FROM settings WHERE name = 'reading_day'").fetchone()[0]
+            self.accept()

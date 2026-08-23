@@ -88,7 +88,9 @@ class ReadingStats(QWidget):
             cd = date.today()  
             year,month = (cd.year - 1, 12) if cd.month == 1 else (cd.year, cd.month - 1)
             self.last_reading_date = date(year,month,reading_day)
-            last_read_units = int(conn.execute("SELECT units FROM readings WHERE reading_date = ?",[self.last_reading_date]).fetchone()[0])
+            result = conn.execute("SELECT units FROM readings WHERE reading_date >= ? ORDER BY reading_date LIMIT 1",[self.last_reading_date]).fetchone()[0]
+            last_read_units = int(result)
+            
             latest_units = int(conn.execute("SELECT units FROM readings ORDER BY reading_date DESC LIMIT 1").fetchone()[0])
             units_used = latest_units - last_read_units
             units_left = units_limit - units_used
