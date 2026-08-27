@@ -1,5 +1,5 @@
 from PyQt6.QtGui import QIcon
-from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout, QPushButton, QDialog
+from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout, QPushButton, QDialog, QVBoxLayout
 from widgets.add_readings import AddReadings
 from widgets.show_readings import ShowReadings
 from widgets.readings_stats import ReadingStats
@@ -50,6 +50,10 @@ red_btn_style = """
 QPushButton {background-color: #e74c3c;font-size: 20pt;border-radius: 8px;padding: 5px; font-weight: bold;} 
 QPushButton:hover { background-color: #c0392b;}
 """
+yellow_btn_style = """
+QPushButton {background-color: #f39c12;font-size: 20pt;border-radius: 8px;padding: 5px; font-weight: bold;} 
+QPushButton:hover { background-color: #f1c40f;}
+"""
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -73,27 +77,40 @@ class MainWindow(QMainWindow):
 
         self.add_btn = QPushButton("Add reading")
         self.add_btn.setStyleSheet(blue_btn_style)
-        self.add_btn.setMinimumWidth(200)
+        self.add_btn.setMinimumWidth(160)
+
+        self.edit_btn = QPushButton("Edit reading")
+        self.edit_btn.setStyleSheet(yellow_btn_style)
+        self.edit_btn.setMinimumWidth(160)
 
         self.settings_btn = QPushButton('Settings')
         self.settings_btn.setStyleSheet(red_btn_style)
-        self.settings_btn.setMinimumWidth(200)
+        self.settings_btn.setFixedWidth(150)
 
         self.show_readings = ShowReadings()
 
         self.reading_stats = ReadingStats()
+        self.reading_stats.setFixedWidth(150)
 
 
     def create_grid(self):
         widget = QWidget()
         grid = QGridLayout()
-        grid.addWidget(self.add_readings,0,0)
+        grid.addWidget(self.add_readings,0,0,1,2)
         grid.addWidget(self.add_btn,0,0)
-        grid.addWidget(self.settings_btn,0,1)
-        grid.addWidget(self.reading_stats,0,2,2,1)
+        grid.addWidget(self.edit_btn,0,1)
         grid.addWidget(self.show_readings,1,0,1,2)
+
+        right_widget = QWidget()
+        right_layout = QVBoxLayout(right_widget)
+
+        right_layout.addWidget(self.settings_btn)
+        right_layout.addWidget(self.reading_stats)
+        right_layout.addStretch()
+        
+        grid.addWidget(right_widget,0,2,2,1)
         grid.setColumnStretch(0, 1)
-        grid.setColumnStretch(1, 0)
+        grid.setColumnStretch(1, 1)
         widget.setLayout(grid)
         self.setCentralWidget(widget)
 
@@ -111,7 +128,7 @@ class MainWindow(QMainWindow):
         visible = self.add_readings.isVisible()
         self.add_readings.setVisible(not visible)
         self.add_btn.setVisible(visible)
-        self.settings_btn.setVisible(visible)
+        self.edit_btn.setVisible(visible)
         if visible:
             self.add_btn.setFocus()
         else:
