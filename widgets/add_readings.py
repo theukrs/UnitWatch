@@ -24,9 +24,6 @@ class AddReadings(QWidget):
         self.confirm_submission()
 
     def create_widgets(self):
-        self.header_label = QLabel('Enter the reading!')
-        self.header_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
         self.input_box = QLineEdit()
         self.input_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.input_box.setValidator(QIntValidator(1,9999))
@@ -56,17 +53,21 @@ class AddReadings(QWidget):
     def create_link(self):
         self.submit_btn.clicked.connect(self.readings_submit)
         self.cancel_btn.clicked.connect(self.submitted.emit)
-    
+
     def readings_submit(self):
         try:
             readings = int(self.input_box.text())
+            with duckdb.connect('data.duckdb') as conn:
+                latest_units_readings = int(conn.execute('SELECT units FROM readings ORDER BY reading_date DESC LIMIT 1').fetchone()[0])
+            if not latest_units_readings < readings <= 9999:
+                raise ValueError
             r_date = date.today()
             self.input_box.clear()
             with duckdb.connect('data.duckdb') as conn:
                 conn.execute("INSERT INTO readings (reading_date, units) VALUES (?,?)",(r_date,readings))
                 self.submitted.emit()
         except ValueError:
-            QMessageBox.warning(self,'Input Error','Kindly enter valid numbers only.\nNumber and Rows must be integers.\nThe number must be 1-9999')
+            QMessageBox.warning(self,'Input Error',f'Kindly enter valid numbers only.\nNumber and Rows must be integers.\nThe number must be {latest_units_readings}-9999')
 
     def disable_options(self,units):
         self.input_box.setText(f'{str(units)} [ALREADY SUBMITTED]')

@@ -44,15 +44,15 @@ DATE_STYLE = """
     }
 """
 blue_btn_style = """
-QPushButton {background-color: #2980b9;font-size: 20pt;border-radius: 8px;padding: 5px; font-weight: bold;}
-QPushButton:hover {background-color: #3498db;}"""
+QPushButton {background-color: #3498db;font-size: 20pt;border-radius: 8px;padding: 5px; font-weight: bold;}
+QPushButton:hover {background-color: #2980b9;}"""
 red_btn_style = """
 QPushButton {background-color: #e74c3c;font-size: 20pt;border-radius: 8px;padding: 5px; font-weight: bold;} 
 QPushButton:hover { background-color: #c0392b;}
 """
 yellow_btn_style = """
-QPushButton {background-color: #f39c12;font-size: 20pt;border-radius: 8px;padding: 5px; font-weight: bold;} 
-QPushButton:hover { background-color: #f1c40f;}
+QPushButton {background-color: #f1c40f;font-size: 20pt;border-radius: 8px;padding: 5px; font-weight: bold;} 
+QPushButton:hover { background-color: #f39c12;}
 """
 
 class MainWindow(QMainWindow):
