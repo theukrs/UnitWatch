@@ -68,12 +68,12 @@ class ReadingStats(QWidget):
 
     def set_days_left(self):
         with duckdb.connect('data.duckdb') as conn:
-            next_reading_date = int(conn.execute("SELECT value FROM settings WHERE name = 'reading_day'").fetchone()[0])
+            reading_day = int(conn.execute("SELECT value FROM settings WHERE name = 'reading_day'").fetchone()[0])
             cd = date.today()
-            self.remaining_days = next_reading_date - cd.day
+            self.remaining_days = reading_day - cd.day
             if self.remaining_days < 0:
                 year, month = (cd.year + 1, 1) if cd.month == 12 else (cd.year, cd.month + 1)
-                day = min(next_reading_date,calendar.monthrange(year,month)[1]) 
+                day = min(reading_day,calendar.monthrange(year,month)[1]) 
                 target = date(year, month, day)
                 result = (target - cd).days
                 self.days_left.setText(str(result))

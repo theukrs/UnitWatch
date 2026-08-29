@@ -73,9 +73,14 @@ QTableWidget QScrollBar::sub-line:horizontal {
 }
 """
 QUERY = """
-        SELECT reading_date, units, units - LAG(units) OVER(order by reading_date) AS usage
-        FROM readings ORDER BY reading_date DESC LIMIT 30
-        """
+    SELECT 
+        reading_date, 
+        units, units - 
+        LAG(units) OVER(order by reading_date) AS usage
+    FROM readings 
+    ORDER BY reading_date DESC 
+    LIMIT 30
+"""
 
 class ShowReadings(QWidget):
     def __init__(self):
@@ -91,6 +96,7 @@ class ShowReadings(QWidget):
         self.table.verticalHeader().setDefaultAlignment(Qt.AlignmentFlag.AlignCenter)
         self.table.setColumnCount(3)
         self.table.setHorizontalHeaderLabels(['Date','Reading','Usage'])
+        self.table.horizontalHeader().setStretchLastSection(True)
         self.load_tables()        
 
     def create_grid(self):
@@ -104,7 +110,8 @@ class ShowReadings(QWidget):
         self.table.setRowCount(len(table_rows))
         for i,data in enumerate(table_rows):
             item1, item2 = QTableWidgetItem(data[0].strftime("%d-%m-%Y")),QTableWidgetItem(str(data[1]))
-            item3 = QTableWidgetItem(str(data[2]))
+            usage = '-' if data[2] is None else str(data[2])
+            item3 = QTableWidgetItem(usage)
             item1.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             item2.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             item3.setTextAlignment(Qt.AlignmentFlag.AlignCenter)

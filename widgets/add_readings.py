@@ -1,18 +1,20 @@
-from PyQt6.QtCore import Qt, QDate, pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtGui import QIntValidator
-from PyQt6.QtWidgets import QWidget,QFormLayout, QLabel, QLineEdit, QPushButton, QDateEdit, QMessageBox
+from PyQt6.QtWidgets import QWidget,QFormLayout,QLineEdit, QPushButton, QMessageBox
 from datetime import date
 import duckdb
 green_btn_style = """
-QPushButton {background-color: #27ae60;font-size: 15pt;border-radius: 8px;padding:5px;}
-QPushButton:hover {background-color: #219150;}
+QPushButton { background-color: #27ae60;font-size: 15pt;border-radius: 8px;padding:5px; }
+QPushButton:hover { background-color: #219150; }
+QPushButton:pressed { background-color: #1e8449; }
 """
 red_btn_style = """
 QPushButton {background-color: #e74c3c; color: white;font-size: 15pt; border-radius: 8px; padding: 5px;} 
 QPushButton:hover { background-color: #c0392b;}
+QPushButton:pressed { background-color: #a93226; }
 """
-QUERY = f"""
-SELECT reading_date, units FROM readings WHERE reading_date = '{date.today()}'
+QUERY = """
+SELECT reading_date, units FROM readings WHERE reading_date = ?
 """
 
 class AddReadings(QWidget):
@@ -34,11 +36,6 @@ class AddReadings(QWidget):
         self.r_date.setReadOnly(True)
         self.r_date.setText(str(date.today().strftime("%d-%m-%Y")))
 
-        # self.r_date = QDateEdit()
-        # self.r_date.setDate(QDate.currentDate())
-        # self.r_date.setCalendarPopup(True)
-        # self.r_date.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
         self.submit_btn = QPushButton('Submit')
         self.submit_btn.setStyleSheet(green_btn_style)
         self.cancel_btn = QPushButton('Cancel')
@@ -58,26 +55,30 @@ class AddReadings(QWidget):
     def readings_submit(self):
         try:
             readings = int(self.input_box.text())
-            with duckdb.connect('data.duckdb') as conn:
-                latest_units_readings = int(conn.execute('SELECT units FROM readings ORDER BY reading_date DESC LIMIT 1').fetchone()[0])
-            if not latest_units_readings < readings <= 9999:
-                raise ValueError
-            r_date = date.today()
-            self.input_box.clear()
-            with duckdb.connect('data.duckdb') as conn:
-                conn.execute("INSERT INTO readings (reading_date, units) VALUES (?,?)",(r_date,readings))
-                self.submitted.emit()
         except ValueError:
-            QMessageBox.warning(self,'Input Error',f'Kindly enter valid numbers only.\nNumber and Rows must be integers.\nThe number must be {latest_units_readings}-9999')
+            self.throw_error('Kindly enter a valid integer.')
+            return
+        with duckdb.connect('data.duckdb') as conn:
+            latest_units = int(conn.execute('SELECT units FROM readings ORDER BY reading_date DESC LIMIT 1').fetchone()[0])
+        if readings <= latest_units:
+            self.throw_error(f"The number must be greater than {latest_units}")
+            return
+        r_date = date.today()
+        with duckdb.connect('data.duckdb') as conn:
+            conn.execute("INSERT INTO readings (reading_date, units) VALUES (?,?)",(r_date,readings))
+            self.input_box.clear()
+            self.submitted.emit()
 
     def disable_options(self,units):
         self.input_box.setText(f'{str(units)} [ALREADY SUBMITTED]')
         self.input_box.setReadOnly(True)
         self.submit_btn.setDisabled(True)
-        self.r_date.setReadOnly(True)
 
     def confirm_submission(self):
         with duckdb.connect('data.duckdb') as conn:
-            results = conn.execute(QUERY).fetchall()
-        if (len(results) > 0):
-            self.disable_options(results[0][1])
+            results = conn.execute(QUERY,[date.today()]).fetchone()
+        if results:
+            self.disable_options(results[1])
+
+    def throw_error(self,msg):
+        QMessageBox.warning(self,'Input Error', msg)

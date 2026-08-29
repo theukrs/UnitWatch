@@ -17,49 +17,21 @@ STYLE = """
     QSpinBox::up-button:hover, QSpinBox::down-button:hover {background-color: #333;}
     QLabel { font-size:15px; font-weight: bold;}
 """
-DATE_STYLE = """
-        QDateEdit {
-        background-color: #222;
-        border: 1px solid #555;
-        border-radius: 4px;
-        padding: 8px 10px;
-        font-size: 11pt;
-        color: white;
-    }
-    QDateEdit:focus {
-        border: 1px solid #27ae60;
-    }
-    QDateEdit::drop-down {
-        subcontrol-origin: padding;
-        subcontrol-position: top right;
-        width: 25px;
-        border-left-width: 1px;
-        border-left-color: #555;
-        border-left-style: solid;
-        border-top-right-radius: 3px;
-        border-bottom-right-radius: 3px;
-        background-color: #333;
-    }
-    QDateEdit::drop-down:hover {
-        background-color: #27ae60;
-    }
-"""
 blue_btn_style = """
 QPushButton {background-color: #3498db;font-size: 20pt;border-radius: 8px;padding: 5px; font-weight: bold;}
 QPushButton:hover {background-color: #2980b9;}"""
-red_btn_style = """
-QPushButton {background-color: #e74c3c;font-size: 20pt;border-radius: 8px;padding: 5px; font-weight: bold;} 
-QPushButton:hover { background-color: #c0392b;}
+green_btn_style = """
+QPushButton {background-color: #27ae60;font-size: 20pt;border-radius: 8px;padding: 5px; font-weight: bold;} 
+QPushButton:hover { background-color: #219150;}
 """
-yellow_btn_style = """
-QPushButton {background-color: #f1c40f;font-size: 20pt;border-radius: 8px;padding: 5px; font-weight: bold;} 
-QPushButton:hover { background-color: #f39c12;}
+purple_btn_style = """
+QPushButton {background-color: #8e44ad;font-size: 20pt;border-radius: 8px;padding: 5px; font-weight: bold;} 
+QPushButton:hover { background-color: #9b59b6;}
 """
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.add_mode = False
         self.create_sql()
         self.create_widgets()
         self.create_grid()
@@ -81,11 +53,11 @@ class MainWindow(QMainWindow):
         self.add_btn.setMinimumWidth(160)
 
         self.edit_btn = QPushButton("Edit reading")
-        self.edit_btn.setStyleSheet(yellow_btn_style)
+        self.edit_btn.setStyleSheet(green_btn_style)
         self.edit_btn.setMinimumWidth(160)
 
         self.settings_btn = QPushButton('Settings')
-        self.settings_btn.setStyleSheet(red_btn_style)
+        self.settings_btn.setStyleSheet(purple_btn_style)
         self.settings_btn.setFixedWidth(150)
 
         self.show_readings = ShowReadings()
@@ -136,23 +108,26 @@ class MainWindow(QMainWindow):
         else:
             self.add_readings.setFocus()
 
-
-    def reading_submitted(self):
-        self.toggle_add_mode()
+    def refresh_data(self):
         self.show_readings.load_tables()
         self.reading_stats.link_widgets()
+
+    def reading_submitted(self):
         self.add_readings.confirm_submission()
+        self.toggle_add_mode()
+        self.refresh_data()
 
     def open_settings(self):
         dialog = Settings(self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            self.reading_stats.link_widgets()
+            self.refresh_data()
+
 
     def open_edit_readings(self):
         dialog = EditReadings(self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
-            self.reading_stats.link_widgets()
-            self.show_readings.load_tables()
+            self.refresh_data()
+            
 
 app = QApplication([])
 app.setWindowIcon(QIcon('assets/unitwatch.png'))

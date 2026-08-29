@@ -1,5 +1,6 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QDialog, QLineEdit, QComboBox, QPushButton, QFormLayout
+from PyQt6.QtGui import QIntValidator
+from PyQt6.QtWidgets import QDialog, QLineEdit, QComboBox, QPushButton, QFormLayout, QMessageBox
 import duckdb
 from datetime import date
 COMBO_STYLE = """
@@ -70,9 +71,10 @@ class EditReadings(QDialog):
     def create_widgets(self):
         self.input_box = QLineEdit()
         self.input_box.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.input_box.setValidator(QIntValidator(1,9999))
 
         self.reading_days = QComboBox()
-        self.add_dates_in_list_widget()
+        self.load_reading_days()
 
         self.save_btn = QPushButton('Save')
         self.save_btn.setStyleSheet(green_btn_style)
@@ -98,7 +100,7 @@ class EditReadings(QDialog):
         self.setFixedSize(300,160)
         self.setStyleSheet(COMBO_STYLE)
 
-    def add_dates_in_list_widget(self):
+    def load_reading_days(self):
         with duckdb.connect('data.duckdb') as conn:
             day = int(conn.execute("SELECT value FROM settings WHERE name = 'reading_day'").fetchone()[0])
             last_reading_date = self.get_last_reading_date(day)
@@ -110,15 +112,24 @@ class EditReadings(QDialog):
     def get_last_reading_date(self,day):
         cd = date.today()
         year,month = (cd.year - 1, 12) if cd.month == 1 else (cd.year, cd.month - 1)
-        last_reading_date = date(year,month,day)
-        return last_reading_date
+        return date(year,month,day)
 
     def update_value(self):
-        self.input_box.setText(str(self.reading_days.currentData()[1]))
+        data = self.reading_days.currentData()
+        if data:
+            self.input_box.setText(str(data[1]))
 
     def submit_values(self):
+        reading_date = self.reading_days.currentData()[0]
+        new_units = int(self.input_box.text())
         with duckdb.connect('data.duckdb') as conn:
-            day = self.reading_days.currentData()[0]
-            new_units = int(self.input_box.text())
-            conn.execute("UPDATE readings SET units = ? WHERE reading_date = ?",[new_units,day])
+            previous_date_units = int(conn.execute('SELECT units FROM readings WHERE reading_date < ? ORDER BY reading_date DESC LIMIT 1',[reading_date]).fetchone()[0])
+            next_date_units = conn.execute('SELECT units FROM readings WHERE reading_date > ? ORDER BY reading_date LIMIT 1',[reading_date]).fetchone()
+            if new_units <= previous_date_units:
+                QMessageBox.warning(self,'Input Error', f"The number must be greater than {previous_date_units}")
+                return
+            if next_date_units and next_date_units[0] >= new_units:
+                QMessageBox.warning(self,'Input Error', f"The number must be lower than {next_date_units}")
+                return
+            conn.execute("UPDATE readings SET units = ? WHERE reading_date = ?",[new_units,reading_date])
         self.accept()
