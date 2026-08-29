@@ -4,6 +4,7 @@ from widgets.add_readings import AddReadings
 from widgets.show_readings import ShowReadings
 from widgets.readings_stats import ReadingStats
 from widgets.settings import Settings
+from widgets.edit_readings import EditReadings
 import duckdb
 STYLE = """
     QWidget {color: white;}
@@ -117,12 +118,13 @@ class MainWindow(QMainWindow):
     def setup_window(self):
         self.setWindowTitle('UnitWatch')
         self.setStyleSheet(STYLE)
-        self.setFixedSize(560,426)
+        self.setFixedSize(580,426)
 
     def create_link(self):
         self.add_btn.clicked.connect(self.toggle_add_mode)
         self.add_readings.submitted.connect(self.reading_submitted)
         self.settings_btn.clicked.connect(self.open_settings)
+        self.edit_btn.clicked.connect(self.open_edit_readings)
 
     def toggle_add_mode(self):
         visible = self.add_readings.isVisible()
@@ -145,6 +147,12 @@ class MainWindow(QMainWindow):
         dialog = Settings(self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             self.reading_stats.link_widgets()
+
+    def open_edit_readings(self):
+        dialog = EditReadings(self)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self.reading_stats.link_widgets()
+            self.show_readings.load_tables()
 
 app = QApplication([])
 app.setWindowIcon(QIcon('assets/unitwatch.png'))

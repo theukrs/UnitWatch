@@ -14,6 +14,7 @@ QPushButton:hover { background-color: #c0392b;}
 QUERY = f"""
 SELECT reading_date, units FROM readings WHERE reading_date = '{date.today()}'
 """
+
 class AddReadings(QWidget):
     submitted = pyqtSignal()
     def __init__(self):
