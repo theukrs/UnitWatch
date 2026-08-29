@@ -1,5 +1,5 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QDialog, QFormLayout, QSpinBox, QPushButton, QHBoxLayout, QSizePolicy
+from PyQt6.QtWidgets import QDialog, QFormLayout, QSpinBox, QPushButton, QHBoxLayout, QSizePolicy, QMessageBox
 import duckdb
 green_btn_style = """
 QPushButton {background-color: #27ae60;font-size: 15pt;border-radius: 2px;padding:5px;}
@@ -75,6 +75,8 @@ class Settings(QDialog):
         self.setFixedSize(370,250)
 
     def create_link(self):
+        self.import_btn.clicked.connect(self.import_readings)
+        self.export_btn.clicked.connect(self.export_readings)
         self.save_btn.clicked.connect(self.submit_values)
         self.cancel_btn.clicked.connect(self.reject)
 
@@ -92,3 +94,12 @@ class Settings(QDialog):
             conn.execute("UPDATE settings SET value = ? WHERE name = 'reading_day'",[reading_day])
             conn.execute("UPDATE settings SET value = ? WHERE name = 'units_limit'",[units_limit])
             self.accept()
+
+    def import_readings(self):
+        pass
+
+    def export_readings(self):
+        with duckdb.connect('data.duckdb') as conn:
+            df = conn.execute('SELECT * FROM readings').df()
+            df.to_csv('export.csv',index=False)
+            QMessageBox.information(self, "Siccess", "Reading exported successfully!")
