@@ -17,6 +17,9 @@ env/
 # Environment / secrets
 .env
 
+# CSV
+.csv
+
 # IDE
 .vscode/
 
