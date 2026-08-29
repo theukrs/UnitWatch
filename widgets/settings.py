@@ -10,10 +10,10 @@ QPushButton {background-color: #e74c3c; font-size: 15pt; border-radius: 2px; pad
 QPushButton:hover { background-color: #c0392b;}
 """
 blue_btn_style = """
-QPushButton {background-color: #1f4e6e;font-size: 11pt;border-radius: 12px;padding: 5px; }
+QPushButton {background-color: #1f4e6e;font-size: 14pt;border-radius: 12px;padding: 5px; }
 QPushButton:hover {background-color: #286486;}"""
 purple_btn_style = """
-QPushButton {background-color: #176b5b;font-size: 11pt;border-radius: 12px;padding: 5px; } 
+QPushButton {background-color: #176b5b;font-size: 14pt;border-radius: 12px;padding: 5px; } 
 QPushButton:hover { background-color: #20816e;}
 """
 class Settings(QDialog):
@@ -34,10 +34,11 @@ class Settings(QDialog):
 
         self.import_btn = QPushButton('Import')
         self.import_btn.setStyleSheet(blue_btn_style)
-        self.import_btn.se
+        self.import_btn.setFixedWidth(100)
 
         self.export_btn = QPushButton('Export')
         self.export_btn.setStyleSheet(purple_btn_style)
+        self.export_btn.setFixedWidth(100)
 
         self.save_btn = QPushButton('Save')
         self.save_btn.setStyleSheet(green_btn_style)
@@ -57,7 +58,9 @@ class Settings(QDialog):
         layout.addRow('Units:', self.units_limit)
         layout.addRow('Reading Date:',self.reading_day)
         layout.addRow('Import Readings:',self.import_btn)
+        layout.setAlignment(self.import_btn, Qt.AlignmentFlag.AlignCenter)
         layout.addRow('Export Readings:',self.export_btn)
+        layout.setAlignment(self.export_btn, Qt.AlignmentFlag.AlignCenter)
 
         buttons = QHBoxLayout()
         buttons.addWidget(self.save_btn)
