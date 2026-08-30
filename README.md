@@ -6,13 +6,21 @@ _A simple Python application for tracking daily electricity usage, monitoring un
 
 ## Features
 
-- Database
-- Add meter readings
-- View previous readings
+- Add daily meter readings
+- Edit previous meter readings
+- View reading history
 - Track daily unit usage
 - Store readings by date
 - Calculate usage between readings
 - Calculate average daily usage
+- Track units used and units remaining
+- Calculate project monthly usage
+- Track days remaining till next reading
+- Set a monthly unit limit
+- Set a custom monthly reading day
+- Validate readings against previous and next readings
+- Import readings from CSV
+- Export readings from CSV
 - Simple and clean GUI
 
 ---
@@ -21,9 +29,31 @@ _A simple Python application for tracking daily electricity usage, monitoring un
 
 - Python 3
 - PyQt6
-- Duckdb (for database)
+- Duckdb
+- Pandas
 
 ---
+
+## Data Management
+
+- Store readings locally using DuckDB
+- Import readings from CSV files
+- Export readings to CSV files
+
+## WORK IN PROGRESS
+
+- Data validation during import
+- First run setup
+- Delete Reading/s
+- Change Theme from Settings
+- About page
+- Filter by month
+- Backup Database
+- Improved Statistics (Highest/Lowest daily usage, Average monthly usage)
+- Visual Graph
+- Monthy history
+- Usage Warning (Indicator)
+- Average Usage into Required average usage
 
 ## Screenshots
 
