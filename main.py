@@ -119,9 +119,8 @@ class MainWindow(QMainWindow):
 
     def open_settings(self):
         dialog = Settings(self)
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            self.refresh_data()
-
+        dialog.exec()
+        self.refresh_data()
 
     def open_edit_readings(self):
         dialog = EditReadings(self)

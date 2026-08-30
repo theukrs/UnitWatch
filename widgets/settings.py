@@ -1,5 +1,5 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QDialog, QFormLayout, QSpinBox, QPushButton, QHBoxLayout, QSizePolicy, QMessageBox
+from PyQt6.QtWidgets import QDialog, QFormLayout, QSpinBox, QPushButton, QHBoxLayout, QSizePolicy, QMessageBox, QFileDialog
 import duckdb
 green_btn_style = """
 QPushButton {background-color: #27ae60;font-size: 15pt;border-radius: 2px;padding:5px;}
@@ -96,10 +96,18 @@ class Settings(QDialog):
             self.accept()
 
     def import_readings(self):
-        pass
+        file_path,_ = QFileDialog.getOpenFileName(self,'Import Readings','','CSV Files (*.csv)')
+        if not file_path:
+            return
+        with duckdb.connect('data.duckdb') as conn:
+            conn.execute(f"CREATE OR REPLACE TABLE readings AS SELECT * FROM '{file_path}'")
+            QMessageBox.information(self,'Success','Reading Imported Successfuly')
 
     def export_readings(self):
+        file_path,_ = QFileDialog.getSaveFileName(self,'Export Readings','readings.csv','CSV Files (*.csv)')
+        if not file_path:
+            return     
         with duckdb.connect('data.duckdb') as conn:
             df = conn.execute('SELECT * FROM readings').df()
-            df.to_csv('export.csv',index=False)
-            QMessageBox.information(self, "Siccess", "Reading exported successfully!")
+            df.to_csv(file_path,index=False)
+            QMessageBox.information(self, "Success", "Reading exported successfully!")
