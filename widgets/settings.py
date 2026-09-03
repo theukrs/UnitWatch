@@ -1,6 +1,7 @@
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QDialog, QFormLayout, QSpinBox, QPushButton, QHBoxLayout, QSizePolicy, QMessageBox, QFileDialog
 import duckdb
+import pandas as pd
 green_btn_style = """
 QPushButton {background-color: #27ae60;font-size: 15pt;border-radius: 2px;padding:5px;}
 QPushButton:hover {background-color: #219150;}
@@ -96,12 +97,17 @@ class Settings(QDialog):
             self.accept()
 
     def import_readings(self):
-        file_path,_ = QFileDialog.getOpenFileName(self,'Import Readings','','CSV Files (*.csv)')
-        if not file_path:
+        imported_data,_ = QFileDialog.getOpenFileName(self,'Import Readings','','CSV Files (*.csv)')
+        if not imported_data:
             return
+        data = pd.read_csv(imported_data)
+        total_rows = data.reading_date.count()
+        invalid_rows = data.isna().sum().sum()
+        data = data.dropna()
+        duplicated_rows = data['reading_date'].duplicated().sum()
         with duckdb.connect('data.duckdb') as conn:
-            conn.execute(f"CREATE OR REPLACE TABLE readings AS SELECT * FROM '{file_path}'")
-            QMessageBox.information(self,'Success','Reading Imported Successfuly')
+            conn.execute(f"CREATE OR REPLACE TABLE readings AS SELECT * FROM data")
+            QMessageBox.information(self,'Success',f"✓ {total_rows} rows imported\n✗ {invalid_rows} invalid reading\n⚠ {duplicated_rows} duplicates skipped")
 
     def export_readings(self):
         file_path,_ = QFileDialog.getSaveFileName(self,'Export Readings','readings.csv','CSV Files (*.csv)')
