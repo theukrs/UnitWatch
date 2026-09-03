@@ -90,10 +90,12 @@ class Settings(QDialog):
 
     def submit_values(self):
         with duckdb.connect('data.duckdb') as conn:
+            data = self.data
             reading_day = self.reading_day.value()
             units_limit = self.units_limit.value()
             conn.execute("UPDATE settings SET value = ? WHERE name = 'reading_day'",[reading_day])
             conn.execute("UPDATE settings SET value = ? WHERE name = 'units_limit'",[units_limit])
+            conn.execute(f"CREATE OR REPLACE TABLE readings AS SELECT * FROM data")
             self.accept()
 
     def import_readings(self):
@@ -101,13 +103,17 @@ class Settings(QDialog):
         if not imported_data:
             return
         data = pd.read_csv(imported_data)
-        total_rows = data.reading_date.count()
-        invalid_rows = data.isna().sum().sum()
+        total_rows = len(data)
+        invalid_rows = data.isna().any(axis=1).sum()
         data = data.dropna()
         duplicated_rows = data['reading_date'].duplicated().sum()
-        with duckdb.connect('data.duckdb') as conn:
-            conn.execute(f"CREATE OR REPLACE TABLE readings AS SELECT * FROM data")
-            QMessageBox.information(self,'Success',f"✓ {total_rows} rows imported\n✗ {invalid_rows} invalid reading\n⚠ {duplicated_rows} duplicates skipped")
+        data['reading_date'] = pd.to_datetime(data['reading_date']).dt.date
+        data['units'] = pd.to_numeric(data['units']).astype(int)
+        self.data = data.drop_duplicates(subset='reading_date')
+        QMessageBox.information(self,'Success',
+                                f"✓ {total_rows} rows imported\n"
+                                f"✗ {invalid_rows} invalid reading\n"
+                                f"⚠ {duplicated_rows} duplicates skipped")
 
     def export_readings(self):
         file_path,_ = QFileDialog.getSaveFileName(self,'Export Readings','readings.csv','CSV Files (*.csv)')

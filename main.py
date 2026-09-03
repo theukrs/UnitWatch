@@ -43,9 +43,6 @@ class MainWindow(QMainWindow):
         with duckdb.connect('data.duckdb') as conn:
             conn.execute('CREATE TABLE IF NOT EXISTS readings (reading_date DATE, units INTEGER)')
             conn.execute('CREATE TABLE IF NOT EXISTS settings (name VARCHAR PRIMARY KEY, value VARCHAR)')
-            print(conn.execute("SHOW TABLES").fetchall())
-            print(conn.execute("SELECT * FROM readings").fetchall())
-            # conn.execute('DELETE FROM readings WHERE units = 2476')
 
     def create_widgets(self):
         self.add_readings = AddReadings()
