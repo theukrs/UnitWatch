@@ -44,9 +44,9 @@ _A simple Python application for tracking daily electricity usage, monitoring un
 
 - Data validation during import
 - First run setup
+- About page
 - Delete Reading/s
 - Change Theme from Settings
-- About page
 - Filter by month
 - Backup Database
 - Improved Statistics (Highest/Lowest daily usage, Average monthly usage)
