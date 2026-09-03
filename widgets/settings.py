@@ -108,11 +108,11 @@ class Settings(QDialog):
         duplicated_rows = data['reading_date'].duplicated().sum()
         data['reading_date'] = pd.to_datetime(data['reading_date']).dt.date
         data['units'] = pd.to_numeric(data['units']).astype(int)
-        total_rows = len(data)
         self.data = data.drop_duplicates(subset='reading_date')
+        total_rows = len(data)
         self.msgbox('Import Results',f"✓ {total_rows} rows ready to import\n"
                     f"✗ {invalid_rows} invalid rows skipped\n"
-                    f"⚠ {duplicated_rows} duplicates dates skipped")
+                    f"⚠ {duplicated_rows} duplicate dates skipped")
 
     def export_readings(self):
         file_path,_ = QFileDialog.getSaveFileName(self,'Export Readings','readings.csv','CSV Files (*.csv)')
