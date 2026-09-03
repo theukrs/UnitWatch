@@ -103,17 +103,16 @@ class Settings(QDialog):
         if not imported_data:
             return
         data = pd.read_csv(imported_data)
-        total_rows = len(data)
         invalid_rows = data.isna().any(axis=1).sum()
         data = data.dropna()
         duplicated_rows = data['reading_date'].duplicated().sum()
         data['reading_date'] = pd.to_datetime(data['reading_date']).dt.date
         data['units'] = pd.to_numeric(data['units']).astype(int)
+        total_rows = len(data)
         self.data = data.drop_duplicates(subset='reading_date')
-        QMessageBox.information(self,'Success',
-                                f"✓ {total_rows} rows imported\n"
-                                f"✗ {invalid_rows} invalid reading\n"
-                                f"⚠ {duplicated_rows} duplicates skipped")
+        self.msgbox('Import Results',f"✓ {total_rows} rows ready to import\n"
+                    f"✗ {invalid_rows} invalid rows skipped\n"
+                    f"⚠ {duplicated_rows} duplicates dates skipped")
 
     def export_readings(self):
         file_path,_ = QFileDialog.getSaveFileName(self,'Export Readings','readings.csv','CSV Files (*.csv)')
@@ -123,3 +122,10 @@ class Settings(QDialog):
             df = conn.execute('SELECT * FROM readings').df()
             df.to_csv(file_path,index=False)
             QMessageBox.information(self, "Success", "Reading exported successfully!")
+
+    def msgbox(self,title,msg):
+        msgbox = QMessageBox(self)
+        msgbox.setWindowTitle(title)
+        msgbox.setText(msg)
+        msgbox.setStyleSheet("QLabel { qproperty-alignment: AlignCenter; }")
+        msgbox.exec()
