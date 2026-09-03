@@ -20,6 +20,7 @@ _A simple Python application for tracking daily electricity usage, monitoring un
 - Set a custom monthly reading day
 - Validate readings against previous and next readings
 - Import readings from CSV
+- Data validation during import
 - Export readings from CSV
 - Simple and clean GUI
 
@@ -42,7 +43,6 @@ _A simple Python application for tracking daily electricity usage, monitoring un
 
 ## WORK IN PROGRESS
 
-- Data validation during import
 - First run setup
 - About page
 - Delete Reading/s
