@@ -14,13 +14,13 @@ class Startup(QDialog):
         self.create_link()
 
     def create_widgets(self):
-        self.units_limit_label = QLabel('Units:')
+        self.header_label = QLabel('Kindly enter the limits for Units and your Meter Reading day')
 
+        self.units_limit_label = QLabel('Units:')
         self.units_limit = QSpinBox()
         self.units_limit.setRange(200,1000)
 
         self.reading_day_label = QLabel('Reading Date:')
-
         self.reading_day = QSpinBox()
         self.reading_day.setRange(1,28)
 
@@ -37,7 +37,7 @@ class Startup(QDialog):
         grid.addWidget(self.units_limit,0,1)
         grid.addWidget(self.reading_day_label,1,0)
         grid.addWidget(self.reading_day,1,1)
-        grid.addWidget(self.submit_btn,2,0,2,1)
+        grid.addWidget(self.submit_btn,2,0,1,2)
 
         self.setLayout(grid)
 

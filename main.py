@@ -33,6 +33,10 @@ QPushButton:hover { background-color: #9b59b6;}
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        # In case the user closes the Startup Dialog without saving.
+        self.startup_ok = self.create_sql()
+        if not self.startup_ok:
+            return
         self.create_sql()
         self.create_widgets()
         self.create_grid()
@@ -47,8 +51,9 @@ class MainWindow(QMainWindow):
         if len(settings) < 2:
             dialog = Startup(self)
             if dialog.exec() == QDialog.DialogCode.Accepted:
-                pass
-
+                return True
+            return False
+        return True
 
     def create_widgets(self):
         self.add_readings = AddReadings()
@@ -138,5 +143,8 @@ class MainWindow(QMainWindow):
 app = QApplication([])
 app.setWindowIcon(QIcon('assets/unitwatch.png'))
 window = MainWindow()
+if not window.startup_ok:
+    sys.exit()
+
 window.show()
 app.exec()
