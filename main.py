@@ -5,7 +5,6 @@ from widgets.show_readings import ShowReadings
 from widgets.readings_stats import ReadingStats
 from widgets.settings import Settings
 from widgets.edit_readings import EditReadings
-from datetime import date
 import duckdb
 STYLE = """
     QWidget {color: white;}
@@ -43,6 +42,9 @@ class MainWindow(QMainWindow):
         with duckdb.connect('data.duckdb') as conn:
             conn.execute('CREATE TABLE IF NOT EXISTS readings (reading_date DATE, units INTEGER)')
             conn.execute('CREATE TABLE IF NOT EXISTS settings (name VARCHAR PRIMARY KEY, value VARCHAR)')
+            settings = conn.execute("SELECT name FROM settings WHERE name IN ('reading_day', 'units_limit')").fetchall()
+        if len(settings) < 2:
+            pass
 
     def create_widgets(self):
         self.add_readings = AddReadings()
