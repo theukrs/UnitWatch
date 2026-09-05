@@ -1,64 +1,56 @@
-from PyQt6.QtWidgets import QDialog, QFormLayout, QSpinBox, QPushButton, QHBoxLayout
+from PyQt6.QtWidgets import QDialog, QGridLayout, QLabel, QSpinBox, QPushButton
 import duckdb
 green_btn_style = """
 QPushButton {background-color: #27ae60;font-size: 15pt;border-radius: 2px;padding:5px;}
 QPushButton:hover {background-color: #219150;}
 """
-red_btn_style = """
-QPushButton {background-color: #e74c3c; font-size: 15pt; border-radius: 2px; padding: 5px;} 
-QPushButton:hover { background-color: #c0392b;}
-"""
-
 
 class Startup(QDialog):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,parent=None):
+        super().__init__(parent)
         self.create_widgets()
         self.create_grid()
         self.setup_window()
         self.create_link()
 
     def create_widgets(self):
+        self.units_limit_label = QLabel('Units:')
+
         self.units_limit = QSpinBox()
         self.units_limit.setRange(200,1000)
+
+        self.reading_day_label = QLabel('Reading Date:')
 
         self.reading_day = QSpinBox()
         self.reading_day.setRange(1,28)
 
-        self.save_btn = QPushButton('Save')
-        self.save_btn.setStyleSheet(green_btn_style)
 
-        self.cancel_btn = QPushButton('Cancel')
-        self.cancel_btn.setStyleSheet(red_btn_style)
+        self.submit_btn = QPushButton('Submit')
+        self.submit_btn.setStyleSheet(green_btn_style)
 
     def create_grid(self):
-        layout = QFormLayout()
-        layout.setVerticalSpacing(15)
-        layout.setHorizontalSpacing(20)
+        grid = QGridLayout()
+        grid.setVerticalSpacing(15)
+        grid.setHorizontalSpacing(20)
 
-        layout.addRow('Units:', self.units_limit)
-        layout.addRow('Reading Date:',self.reading_day)
+        grid.addWidget(self.units_limit_label,0,0)
+        grid.addWidget(self.units_limit,0,1)
+        grid.addWidget(self.reading_day_label,1,0)
+        grid.addWidget(self.reading_day,1,1)
+        grid.addWidget(self.submit_btn,2,0,2,1)
 
-        buttons = QHBoxLayout()
-        buttons.addWidget(self.save_btn)
-        buttons.addWidget(self.cancel_btn)
-
-        layout.addRow('',buttons)
-
-        self.setLayout(layout)
+        self.setLayout(grid)
 
     def setup_window(self):
         self.setWindowTitle('Setup Window')
         self.setFixedSize(370,250)
 
     def create_link(self):
-        self.save_btn.clicked.connect(self.submit_values)
-        self.cancel_btn.clicked.connect(self.reject)
+        self.submit_btn.clicked.connect(self.submit_values)
 
     def submit_values(self):
         with duckdb.connect('data.duckdb') as conn:
             reading_day = self.reading_day.value()
             units_limit = self.units_limit.value()
-            conn.execute("UPDATE settings SET value = ? WHERE name = 'reading_day'",[reading_day])
-            conn.execute("UPDATE settings SET value = ? WHERE name = 'units_limit'",[units_limit])
+            conn.execute("INSERT INTO settings (reading_day, units_limit) VALUES (?,?)",[reading_day,units_limit])
         self.accept()

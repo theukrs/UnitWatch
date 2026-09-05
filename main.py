@@ -4,6 +4,7 @@ from widgets.add_readings import AddReadings
 from widgets.show_readings import ShowReadings
 from widgets.readings_stats import ReadingStats
 from widgets.settings import Settings
+from widgets.startup import Startup
 from widgets.edit_readings import EditReadings
 import duckdb
 STYLE = """
@@ -44,7 +45,10 @@ class MainWindow(QMainWindow):
             conn.execute('CREATE TABLE IF NOT EXISTS settings (name VARCHAR PRIMARY KEY, value VARCHAR)')
             settings = conn.execute("SELECT name FROM settings WHERE name IN ('reading_day', 'units_limit')").fetchall()
         if len(settings) < 2:
-            pass
+            dialog = Startup(self)
+            if dialog.exec() == QDialog.DialogCode.Accepted:
+                pass
+
 
     def create_widgets(self):
         self.add_readings = AddReadings()
