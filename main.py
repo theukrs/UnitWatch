@@ -1,3 +1,4 @@
+import sys
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QGridLayout, QPushButton, QDialog, QVBoxLayout
 from widgets.add_readings import AddReadings
