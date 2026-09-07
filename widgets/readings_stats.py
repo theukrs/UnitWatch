@@ -84,6 +84,13 @@ class ReadingStats(QWidget):
         with duckdb.connect('data.duckdb') as conn:
             reading_day = int(conn.execute("SELECT value FROM settings where name = 'reading_day'").fetchone()[0])
             units_limit = int(conn.execute("SELECT value FROM settings WHERE name = 'units_limit'").fetchone()[0])
+            readings = conn.execute("SELECT reading_date, units FROM readings ORDER BY reading_date").fetchall()
+            if len(readings) < 2:
+                self.avg_units.setText("0.00")
+                self.projected_usage.setText("0")
+                self.units_used.setText("0")
+                self.units_left.setText(str(units_limit))
+                return
             latest_reading_date = conn.execute("SELECT reading_date FROM readings ORDER BY reading_date DESC LIMIT 1").fetchone()[0]
             cd = date.today()  
             year,month = (cd.year - 1, 12) if cd.month == 1 else (cd.year, cd.month - 1)
