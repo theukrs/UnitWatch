@@ -2,6 +2,8 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QDialog, QFormLayout, QSpinBox, QPushButton, QHBoxLayout, QSizePolicy, QMessageBox, QFileDialog
 import duckdb
 import pandas as pd
+from widgets.about_me import AboutMe
+
 green_btn_style = """
 QPushButton {background-color: #27ae60;font-size: 15pt;border-radius: 2px;padding:5px;}
 QPushButton:hover {background-color: #219150;}
@@ -17,9 +19,22 @@ purple_btn_style = """
 QPushButton {background-color: #176b5b;font-size: 14pt;border-radius: 12px;padding: 5px; } 
 QPushButton:hover { background-color: #20816e;}
 """
+yellow_btn_style = """
+QPushButton {
+    background-color: #d4ac0d;
+    font-size: 14pt;
+    border-radius: 12px;
+    padding: 8px;
+}
+
+QPushButton:hover {
+    background-color: #e6c229;
+} 
+"""
 class Settings(QDialog):
     def __init__(self,parent=None):
         super().__init__(parent)
+        self.data = None
         self.create_widgets()
         self.create_grid()
         self.setup_window()
@@ -40,6 +55,9 @@ class Settings(QDialog):
         self.export_btn = QPushButton('Export')
         self.export_btn.setStyleSheet(purple_btn_style)
         self.export_btn.setFixedWidth(100)
+
+        self.aboutme_btn = QPushButton('About me')
+        self.aboutme_btn.setStyleSheet(yellow_btn_style)
 
         self.save_btn = QPushButton('Save')
         self.save_btn.setStyleSheet(green_btn_style)
@@ -62,6 +80,8 @@ class Settings(QDialog):
         layout.setAlignment(self.import_btn, Qt.AlignmentFlag.AlignCenter)
         layout.addRow('Export Readings:',self.export_btn)
         layout.setAlignment(self.export_btn, Qt.AlignmentFlag.AlignCenter)
+        layout.addRow('More details:',self.aboutme_btn)
+        layout.setAlignment(self.aboutme_btn,Qt.AlignmentFlag.AlignCenter)
 
         buttons = QHBoxLayout()
         buttons.addWidget(self.save_btn)
@@ -73,11 +93,12 @@ class Settings(QDialog):
 
     def setup_window(self):
         self.setWindowTitle('Settings')
-        self.setFixedSize(370,250)
+        # self.setFixedSize(370,250)
 
     def create_link(self):
         self.import_btn.clicked.connect(self.import_readings)
         self.export_btn.clicked.connect(self.export_readings)
+        self.aboutme_btn.clicked.connect(self.open_about_me)
         self.save_btn.clicked.connect(self.submit_values)
         self.cancel_btn.clicked.connect(self.reject)
 
@@ -88,6 +109,10 @@ class Settings(QDialog):
             self.reading_day.setValue(int(reading_day))
             self.units_limit.setValue(int(units_limit))
 
+    def open_about_me(self):
+        dialog = AboutMe(self)
+        dialog.exec()
+
     def submit_values(self):
         with duckdb.connect('data.duckdb') as conn:
             data = self.data
@@ -95,7 +120,7 @@ class Settings(QDialog):
             units_limit = self.units_limit.value()
             conn.execute("UPDATE settings SET value = ? WHERE name = 'reading_day'",[reading_day])
             conn.execute("UPDATE settings SET value = ? WHERE name = 'units_limit'",[units_limit])
-            conn.execute(f"CREATE OR REPLACE TABLE readings AS SELECT * FROM data")
+            if data: conn.execute(f"CREATE OR REPLACE TABLE readings AS SELECT * FROM data")
             self.accept()
 
     def import_readings(self):
