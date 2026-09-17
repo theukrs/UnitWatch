@@ -24,6 +24,7 @@ _A simple Python application for tracking daily electricity usage, monitoring un
 - Export readings from CSV
 - Simple and clean GUI
 - First run setup
+- About page
 
 ---
 
@@ -44,7 +45,6 @@ _A simple Python application for tracking daily electricity usage, monitoring un
 
 ## WORK IN PROGRESS
 
-- About page
 - Delete Reading/s
 - Change Theme from Settings
 - Filter by month
