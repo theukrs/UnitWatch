@@ -49,6 +49,7 @@ class MainWindow(QMainWindow):
             conn.execute('CREATE TABLE IF NOT EXISTS readings (reading_date DATE, units INTEGER)')
             conn.execute('CREATE TABLE IF NOT EXISTS settings (name VARCHAR PRIMARY KEY, value VARCHAR)')
             settings = conn.execute("SELECT name FROM settings WHERE name IN ('reading_day', 'units_limit')").fetchall()
+            conn.execute("DELETE FROM readings WHERE reading_date = ?",[date(2026,9,28)])
             if len(settings) < 2:
                 dialog = Startup(self, missing_reading=False)
                 if dialog.exec() == QDialog.DialogCode.Accepted:
@@ -118,7 +119,6 @@ class MainWindow(QMainWindow):
         self.add_readings.submitted.connect(self.reading_submitted)
         self.settings_btn.clicked.connect(self.open_settings)
         self.edit_btn.clicked.connect(self.open_edit_readings)
-        self.reading_stats.missing_reading.connect(self.open_startup)
 
     def toggle_add_mode(self):
         visible = self.add_readings.isVisible()

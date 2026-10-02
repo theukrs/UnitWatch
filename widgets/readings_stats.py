@@ -102,6 +102,12 @@ class ReadingStats(QWidget):
             units_used = latest_units - last_read_units
             units_left = units_limit - units_used
             total_days = (latest_reading_date - self.last_reading_date).days
+            if total_days == 0:
+                self.avg_units.setText("0.00")
+                self.projected_usage.setText("0")
+                self.units_used.setText("0")
+                self.units_left.setText(str(units_limit))
+                return
             avg_units_per_day = units_used / total_days
             projected_usage = float(avg_units_per_day) * self.remaining_days
             self.avg_units.setText(f"{avg_units_per_day:.2f}")
