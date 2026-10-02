@@ -8,6 +8,7 @@ from widgets.settings import Settings
 from widgets.startup import Startup
 from widgets.edit_readings import EditReadings
 import duckdb
+from datetime import date
 STYLE = """
     QWidget {color: white;}
     QLineEdit {background-color:#222; border: 1px solid #555; padding: 10px; font-size: 11pt;qproperty-alignment: AlignCenter;}
@@ -38,7 +39,6 @@ class MainWindow(QMainWindow):
         self.startup_ok = self.create_sql()
         if not self.startup_ok:
             return
-        self.create_sql()
         self.create_widgets()
         self.create_grid()
         self.setup_window()
@@ -49,11 +49,19 @@ class MainWindow(QMainWindow):
             conn.execute('CREATE TABLE IF NOT EXISTS readings (reading_date DATE, units INTEGER)')
             conn.execute('CREATE TABLE IF NOT EXISTS settings (name VARCHAR PRIMARY KEY, value VARCHAR)')
             settings = conn.execute("SELECT name FROM settings WHERE name IN ('reading_day', 'units_limit')").fetchall()
-        if len(settings) < 2:
-            dialog = Startup(self)
-            if dialog.exec() == QDialog.DialogCode.Accepted:
-                return True
-            return False
+            if len(settings) < 2:
+                dialog = Startup(self, missing_reading=False)
+                if dialog.exec() == QDialog.DialogCode.Accepted:
+                    return True
+                return False
+            reading_day = int(conn.execute("SELECT value FROM settings WHERE name = 'reading_day'").fetchone()[0])
+            last_reading_date = self.get_reading_day(reading_day=reading_day)
+            last_reading_units = conn.execute("SELECT units FROM readings WHERE reading_date >= ?",[last_reading_date]).fetchone()
+            if last_reading_units is None:
+                dialog = Startup(self, missing_reading=True)
+                if dialog.exec() == QDialog.DialogCode.Accepted:
+                    return True
+                return False
         return True
 
     def create_widgets(self):
@@ -110,6 +118,7 @@ class MainWindow(QMainWindow):
         self.add_readings.submitted.connect(self.reading_submitted)
         self.settings_btn.clicked.connect(self.open_settings)
         self.edit_btn.clicked.connect(self.open_edit_readings)
+        self.reading_stats.missing_reading.connect(self.open_startup)
 
     def toggle_add_mode(self):
         visible = self.add_readings.isVisible()
@@ -139,7 +148,20 @@ class MainWindow(QMainWindow):
         dialog = EditReadings(self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             self.refresh_data()
-            
+
+    def open_startup(self):
+        dialog = Startup(self)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            self.refresh_data()
+
+    def get_reading_day(self,reading_day):
+        cd = date.today()
+        if  reading_day >= cd.day:
+            year, month = (cd.year - 1, 12) if cd.month == 1 else (cd.year, cd.month - 1)
+        else:
+            year, month = cd.year, cd.month
+        last_reading_date = date(year, month,reading_day)
+        return last_reading_date
 
 app = QApplication([])
 app.setWindowIcon(QIcon('assets/unitwatch.png'))

@@ -16,15 +16,19 @@ QPushButton {background-color: #27ae60;font-size: 15pt;border-radius: 2px;paddin
 QPushButton:hover {background-color: #219150;}
 """
 class Startup(QDialog):
-    def __init__(self,parent=None):
+    def __init__(self,parent=None, missing_reading=False):
         super().__init__(parent)
+        self.missing_reading = missing_reading
         self.create_widgets()
         self.create_grid()
         self.setup_window()
         self.create_link()
+        if self.missing_reading:
+            self.setup_values()
 
     def create_widgets(self):
-        self.header_label = QLabel('Kindly enter the limits for Units,\nYour Meter Reading day and\nYour Last Meter Bill reading')
+        alt_label = 'Kindly enter the reading for the last reading day'
+        self.header_label = QLabel('Kindly enter the limits for Units,\nYour Meter Reading day and\nYour Last Meter Bill reading' if self.missing_reading else alt_label)
         self.header_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.header_label.setStyleSheet('font-size:18px;')
 
@@ -34,6 +38,8 @@ class Startup(QDialog):
         self.reading_day = QSpinBox()
         self.reading_day.setRange(1,28)
         self.reading_day.setValue(28)
+        if self.missing_reading:
+            self.reading_day.setReadOnly(True)
 
         self.last_read_units = QSpinBox()
         self.last_read_units.setRange(1,999999)
@@ -48,7 +54,8 @@ class Startup(QDialog):
         layout.setHorizontalSpacing(20)
 
         layout.addRow(self.header_label)
-        layout.addRow('Units:',self.units_limit)
+        if self.missing_reading == False: 
+            layout.addRow('Units:',self.units_limit)
         layout.addRow('Reading day:',self.reading_day)
         layout.addRow('Last read units:',self.last_read_units)
         layout.addRow(self.submit_btn)
@@ -61,7 +68,7 @@ class Startup(QDialog):
         self.setStyleSheet(STYLE)
 
     def create_link(self):
-        self.submit_btn.clicked.connect(self.submit_values)
+        self.submit_btn.clicked.connect(self.update_values if self.missing_reading else self.submit_values)
 
     def submit_values(self):
         with duckdb.connect('data.duckdb') as conn:
@@ -74,6 +81,13 @@ class Startup(QDialog):
             conn.execute("INSERT INTO readings (reading_date, units) VALUES (?,?)",[r_date,last_read_units])
         self.accept()
 
+    def update_values(self):
+        with duckdb.connect('data.duckdb') as conn:
+            last_read_units = self.last_read_units.value()
+            r_date = self.get_reading_day()
+            conn.execute("INSERT INTO readings (reading_date, units) VALUES (?,?)",[r_date,last_read_units])
+        self.accept()
+
     def get_reading_day(self):
         cd = date.today()
         reading_day = self.reading_day.value()
@@ -83,3 +97,11 @@ class Startup(QDialog):
             year, month = cd.year, cd.month
         last_reading_date = date(year, month,reading_day)
         return last_reading_date
+
+    def setup_values(self):
+        with duckdb.connect('data.duckdb') as conn:
+            reading_day = conn.execute("SELECT value FROM settings where name = 'reading_day'").fetchone()
+            last_reading_day = int(conn.execute("SELECT units FROM readings ORDER BY reading_date DESC LIMIT 1").fetchone()[0])
+            self.reading_day.setValue(int(reading_day[0]))
+            self.last_read_units.setValue(last_reading_day)
+            
